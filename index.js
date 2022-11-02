@@ -1,57 +1,32 @@
-const fs = require('fs');
-const path = require('path');
+const express = require('express');
+const app = express();
+app.use(express.json());
 
-console.log(__dirname);
-const dirPath = path.join(__dirname, 'data');
-
-const getDirContent = dirPath => new Promise((resolve, reject) => {
-    fs.readdir(dirPath, (error, files) => {
-        if (error) {
-            reject(error);
-        } else {
-            const filesWithAbsolutePath = files.map(file => {
-                return { filePath: path.join(dirPath, file) };
-            });
-            resolve(filesWithAbsolutePath);
-        }
-    })
-});
-
-const getFileContent = file => new Promise((resolve, reject) => {
-    fs.readFile(file.filePath, (error, data) => {
-        if (error) {
-            reject(error);
-        } else {
-            resolve({
-                ...file,
-                content: data.toString(),
-            });
-        }
-    })
-});
-
-const getFileStats = file => new Promise((resolve, reject) => {
-    fs.stat(file.filePath, (error, stats) => {
-        if (error) {
-            reject(error);
-        } else {
-            resolve({
-                ...file,
-                size: stats.size
-            });
-        }
-    })
-});
-
-async function doDirectoryReport(dirPath) {
-    const files = await getDirContent(dirPath);
-
-    files.forEach(async file => {
-        const { filePath, content } = await getFileContent(file); // blocheaza doar functia asta
-        const { size } = await getFileStats(file);
-        console.log(`Size: ${size}`);
-        console.log(`Content: ${content}\n`);
-    });
+const db = {
+    students: [
+        { id: 0, firstName: 'Ion', lastName: 'Ionel' },
+        { id: 1, firstName: 'Ion', lastName: 'Ionel' }
+    ]
 }
 
-doDirectoryReport('data');
+app.get('/students', (req, res) => {
+    res.send(db);
+});
+
+app.get('/students/:id', (req, res) => {
+    const result = db.students.find(elem => elem.id === parseInt(req.params.id));
+    res.send(result);
+});
+
+let lastId = 1;
+app.post('/students', (req, res) => {
+    lastId += 1;
+    const newStudent = {
+        id: lastId,
+        ...req.body
+    };
+    db.students.push(newStudent);
+    res.send(newStudent);
+});
+
+app.listen(8080);
