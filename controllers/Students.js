@@ -17,7 +17,18 @@ class Students {
     }
 
     create(res, req) {
+        lastId = db.length;
+        const isAdmin = res.tokenPayload.role === 'ADMIN';
+        if (!isAdmin) {
+            res.status(403).send();
+        }
 
+        const newStudent = {
+            id: lastId,
+            ...req.body
+        };
+        db.students.push(newStudent);
+        res.send(newStudent);
     }
 
     delete(res, req) {
