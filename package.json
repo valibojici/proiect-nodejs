@@ -19,6 +19,7 @@
   "homepage": "https://github.com/valibojici/proiect-nodejs#readme",
   "dependencies": {
     "express": "^4.18.2",
+    "jsonwebtoken": "^8.5.1",
     "node-fetch": "^2.6.7"
   },
   "devDependencies": {
